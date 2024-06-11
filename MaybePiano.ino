@@ -2,6 +2,7 @@
  * @file  
  * @brief Toggles FETs based on received serial comms
  * @note  Add more keys by adding them to the vector in setup()
+ *        Its not the most efficient code in the world but it's designed to not make any assumptions
  */
 
 #include <Arduino.h>
