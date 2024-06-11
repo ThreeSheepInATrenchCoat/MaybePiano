@@ -138,8 +138,11 @@ void loop(void)
       {
         RxBufferPos = 1;
       }
+      else
+      {
+        RxBufferPos = 0;
+      }
     }
-    RxBufferPos = 0;
   }
 
   // Update all keys
