@@ -1,3 +1,8 @@
+/**
+ * @file  
+ * @brief Toggles FETs based on received serial comms
+ * @note  Add more keys by adding them to the vector in setup()
+ */
 
 #include <Arduino.h>
 
@@ -7,12 +12,32 @@
 
 #define COMMAND_PACKET_SIZE_BYTES   (3)
 
+// Command values
 const int CommandNoteOn = 144;
+
+const int CommandNoteC4 = 60;
+const int PinNoteC4 = 5;
+
+const int CommandNoteC4s = 61;
+const int PinNoteC4s = 4;
+
+const int CommandNoteD4 = 62;
+const int PinNoteD4 = 3;
+
+const int CommandNoteD4s = 63;
+const int PinNoteD4s = 2;
+
 
 // Allocate keys on heap so we can call parameterised constructors
 // Given this memory is never freed we can do this without risking fragmentation
 not_std::vector<Key*> Keys;
 
+/**
+ * @brief   Actions a full 3-byte command packet
+ * @param   pRxBuffer   Pointer to receive buffer
+ * @retval  true        Packet contents valid, key triggered
+ * @retval  false       Packet contents invalid, key not triggered
+ */
 bool PressKey(uint8_t *pRxBuffer)
 {
   // Check command byte is correct and velocity > 0
@@ -39,6 +64,10 @@ bool PressKey(uint8_t *pRxBuffer)
   return IsValid;
 }
 
+/**
+ * @brief   Blinks the built-in LED at a 1Hz rate
+ * @note    If using pin 13 for anything else, disable this function!
+ */
 void BlinkLED(void)
 {
   static uint32_t BlinkTime = 0;
@@ -62,12 +91,14 @@ void setup(void)
   pinMode(LED_BUILTIN, OUTPUT);
 
   // Add any new notes here in this format
-  // Make sure you update the index and NUM_KEYS!
-  // Ideally we'd use a vector but this generation of Arduino doesnt support that.
-  Keys.push_back(new Key("C4", 60, 5));
-  Keys.push_back(new Key("C4s", 61, 4));
-  Keys.push_back(new Key("D4", 62, 3));
-  Keys.push_back(new Key("D4s", 63, 2));
+  // Parameters are:
+  //  -Key note name as a C-style string
+  //  -Serial command value to trigger note
+  //  -Arduino pin number
+  Keys.push_back(new Key("C4", CommandNoteC4, PinNoteC4));
+  Keys.push_back(new Key("C4s", CommandNoteC4s, PinNoteC4s));
+  Keys.push_back(new Key("D4", CommandNoteD4, PinNoteD4));
+  Keys.push_back(new Key("D4s", CommandNoteD4s, PinNoteD4s));
 }
 
 void loop(void) 
@@ -110,6 +141,7 @@ void loop(void)
     RxBufferPos = 0;
   }
 
+  // Update all keys
   for (size_t Idx = 0; Idx < Keys.size(); Idx++)
   {
     Keys.at(Idx)->Update();
